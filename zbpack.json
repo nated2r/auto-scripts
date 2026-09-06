@@ -1,3 +1,5 @@
 {
-  "app_dir": "web"
+  "app_dir": "web",
+  "build_command": "npm run build",
+  "start_command": "npm run start"
 }
