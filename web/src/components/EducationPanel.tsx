@@ -48,12 +48,12 @@ export function EducationPanel({ onSaved }: Props) {
   }
 
   return (
-    <section className="panel">
+    <section className="panel education-panel">
       <header className="panel-head">
         <div>
           <h2>自定義規則</h2>
         </div>
-        <div className="row gap">
+        <div className="row gap desktop-only">
           <button type="button" className="btn ghost" onClick={fillExample}>
             填入範例
           </button>
@@ -148,6 +148,15 @@ export function EducationPanel({ onSaved }: Props) {
         <p className="hint">
           {account.customInstructions.length}/{CUSTOM_MAX_CHARS} 字
         </p>
+      </div>
+
+      <div className="mobile-action-bar">
+        <button type="button" className="btn ghost" onClick={fillExample}>
+          填入範例
+        </button>
+        <button type="button" className="btn primary btn-block" onClick={handleSave}>
+          儲存設定
+        </button>
       </div>
     </section>
   )

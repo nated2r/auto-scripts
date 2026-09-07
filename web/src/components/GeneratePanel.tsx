@@ -67,6 +67,13 @@ export function GeneratePanel({ account }: Props) {
 
       setRaw(data.raw)
       if (data.warning) setWarning(data.warning)
+      requestAnimationFrame(() => {
+        if (window.matchMedia('(max-width: 899px)').matches) {
+          document
+            .getElementById('generate-result')
+            ?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+        }
+      })
     } catch (e) {
       setError(e instanceof Error ? e.message : '網路錯誤')
     } finally {
@@ -81,7 +88,7 @@ export function GeneratePanel({ account }: Props) {
   }
 
   return (
-    <section className="panel">
+    <section className="panel generate-panel">
       <header className="panel-head">
         <div>
           <h2>產稿</h2>
@@ -89,122 +96,145 @@ export function GeneratePanel({ account }: Props) {
         </div>
       </header>
 
-      <div className="seg" role="tablist">
-        <button
-          type="button"
-          className={mode === 'rewrite' ? 'seg-item on' : 'seg-item'}
-          onClick={() => setMode('rewrite')}
-        >
-          貼稿改爆款
-        </button>
-        <button
-          type="button"
-          className={mode === 'topic' ? 'seg-item on' : 'seg-item'}
-          onClick={() => setMode('topic')}
-        >
-          題材展開
-        </button>
+      <div className="generate-layout">
+        <div className="generate-input">
+          <div className="seg" role="tablist">
+            <button
+              type="button"
+              className={mode === 'rewrite' ? 'seg-item on' : 'seg-item'}
+              onClick={() => setMode('rewrite')}
+            >
+              貼稿改爆款
+            </button>
+            <button
+              type="button"
+              className={mode === 'topic' ? 'seg-item on' : 'seg-item'}
+              onClick={() => setMode('topic')}
+            >
+              題材展開
+            </button>
+          </div>
+
+          <label className="field">
+            <span>{mode === 'rewrite' ? '新聞稿／參考口播' : '題材名稱'}</span>
+            <textarea
+              rows={mode === 'rewrite' ? 10 : 3}
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              placeholder={
+                mode === 'rewrite'
+                  ? '貼上要改寫的內容…'
+                  : '例如：加班到很晚還刷手機'
+              }
+            />
+          </label>
+
+          <label className="field angle-field">
+            <span>角度（一次只出一個）</span>
+            <select value={angle} onChange={(e) => setAngle(Number(e.target.value))}>
+              {ANGLE_LABELS.map((label, i) => (
+                <option key={label} value={i + 1}>
+                  {label}
+                </option>
+              ))}
+            </select>
+          </label>
+
+          <div className="row gap action-row desktop-only">
+            <button
+              type="button"
+              className="btn primary"
+              disabled={loading || !input.trim()}
+              onClick={() => runGenerate(false)}
+            >
+              {loading ? '產稿中…' : '開始產稿'}
+            </button>
+          </div>
+
+          {pendingConfirm && (
+            <div className="banner warn">
+              <p>{pendingConfirm.warning}</p>
+              {pendingConfirm.suggestion && <p>{pendingConfirm.suggestion}</p>}
+              <button
+                type="button"
+                className="btn"
+                disabled={loading}
+                onClick={() => runGenerate(true)}
+              >
+                仍要繼續產稿
+              </button>
+            </div>
+          )}
+
+          {error && <div className="banner err">{error}</div>}
+          {warning && !pendingConfirm && <div className="banner warn">{warning}</div>}
+        </div>
+
+        <div className="generate-result" id="generate-result">
+          {raw ? (
+            <div className="output">
+              <div className="row between output-head">
+                <h3>產出</h3>
+                <button
+                  type="button"
+                  className="btn ghost"
+                  onClick={() =>
+                    copyText('all', table ? normalizeTableForCopy(table) : raw)
+                  }
+                >
+                  {copied === 'all' ? '已複製' : '複製六欄貼 Sheet'}
+                </button>
+              </div>
+
+              {hasFields ? (
+                <div className="field-cards">
+                  {FIELD_ORDER.map((name) => {
+                    const value = fields[name]
+                    if (!value) return null
+                    return (
+                      <article key={name} className="field-card">
+                        <div className="row between">
+                          <h4>{name}</h4>
+                          <button
+                            type="button"
+                            className="btn ghost tiny"
+                            onClick={() => copyText(name, value)}
+                          >
+                            {copied === name ? '已複製' : '複製'}
+                          </button>
+                        </div>
+                        <pre className="field-body">{value}</pre>
+                      </article>
+                    )
+                  })}
+                </div>
+              ) : (
+                <pre className="code-out">{table || raw}</pre>
+              )}
+
+              <details className="raw-details">
+                <summary>原始六欄／完整回覆</summary>
+                <pre className="code-out dim">{raw}</pre>
+              </details>
+            </div>
+          ) : (
+            <div className="output-empty desktop-only">
+              <p>產完會出現在這裡，方便對照貼稿與結果。</p>
+            </div>
+          )}
+        </div>
       </div>
 
-      <label className="field">
-        <span>{mode === 'rewrite' ? '新聞稿／參考口播' : '題材名稱'}</span>
-        <textarea
-          rows={mode === 'rewrite' ? 10 : 3}
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
-          placeholder={
-            mode === 'rewrite'
-              ? '貼上要改寫的內容…'
-              : '例如：加班到很晚還刷手機'
-          }
-        />
-      </label>
-
-      <label className="field inline">
-        <span>角度（一次只出一個）</span>
-        <select value={angle} onChange={(e) => setAngle(Number(e.target.value))}>
-          {ANGLE_LABELS.map((label, i) => (
-            <option key={label} value={i + 1}>
-              {label}
-            </option>
-          ))}
-        </select>
-      </label>
-
-      <div className="row gap">
+      <div className="mobile-action-bar">
         <button
           type="button"
-          className="btn primary"
+          className="btn primary btn-block"
           disabled={loading || !input.trim()}
-          onClick={() => runGenerate(false)}
+          onClick={() => void runGenerate(false)}
         >
           {loading ? '產稿中…' : '開始產稿'}
         </button>
       </div>
-
-      {pendingConfirm && (
-        <div className="banner warn">
-          <p>{pendingConfirm.warning}</p>
-          {pendingConfirm.suggestion && <p>{pendingConfirm.suggestion}</p>}
-          <button
-            type="button"
-            className="btn"
-            disabled={loading}
-            onClick={() => runGenerate(true)}
-          >
-            仍要繼續產稿
-          </button>
-        </div>
-      )}
-
-      {error && <div className="banner err">{error}</div>}
-      {warning && !pendingConfirm && <div className="banner warn">{warning}</div>}
-
-      {raw && (
-        <div className="output">
-          <div className="row between">
-            <h3>產出</h3>
-            <button
-              type="button"
-              className="btn ghost"
-              onClick={() => copyText('all', table ? normalizeTableForCopy(table) : raw)}
-            >
-              {copied === 'all' ? '已複製' : '複製六欄貼 Sheet'}
-            </button>
-          </div>
-
-          {hasFields ? (
-            <div className="field-cards">
-              {FIELD_ORDER.map((name) => {
-                const value = fields[name]
-                if (!value) return null
-                return (
-                  <article key={name} className="field-card">
-                    <div className="row between">
-                      <h4>{name}</h4>
-                      <button
-                        type="button"
-                        className="btn ghost tiny"
-                        onClick={() => copyText(name, value)}
-                      >
-                        {copied === name ? '已複製' : '複製'}
-                      </button>
-                    </div>
-                    <pre className="field-body">{value}</pre>
-                  </article>
-                )
-              })}
-            </div>
-          ) : (
-            <pre className="code-out">{table || raw}</pre>
-          )}
-
-          <details className="raw-details">
-            <summary>原始六欄／完整回覆</summary>
-            <pre className="code-out dim">{raw}</pre>
-          </details>
-        </div>
-      )}
     </section>
   )
 }
