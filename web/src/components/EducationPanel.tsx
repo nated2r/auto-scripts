@@ -81,7 +81,7 @@ export function EducationPanel({ onSaved }: Props) {
           rows={2}
           value={account.tone}
           onChange={(e) => update('tone', e.target.value)}
-          placeholder="可留空。例：口語程度、禁用詞"
+          placeholder="可留空。例：更口語、禁 AI 套句（首先／總而言之）、像本人在講話"
         />
       </label>
 
