@@ -102,7 +102,7 @@ def build():
         Inches(4.2),
         Inches(10),
         Inches(1.2),
-        "自動產稿機器人｜新聞／參考口播 → IG・FB 約 30 秒、高留言導向六欄稿。\n台灣繁中、結構保底、規則可自定。",
+        "自動產稿機器人｜新聞／參考口播／影片轉錄 → IG・FB 約 30 秒、高留言導向六欄稿。\n台灣繁中、結構保底、規則可自定；可加值串接轉錄機器人。",
         size=16,
         color=MUTED,
     )
@@ -115,14 +115,14 @@ def build():
     add_textbox(s, Inches(0.7), Inches(0.85), Inches(11), Inches(1.2), "每天要產稿\n卡的不是靈感，是結構", size=34, bold=True, color=NAVY)
     card(s, Inches(0.7), Inches(2.4), Inches(3.7), Inches(3.3), "1｜寫得出來，但不爆", "有內容、沒鉤子、沒懸念、\nCTA 模糊，留言起不來。", SOFT)
     card(s, Inches(4.7), Inches(2.4), Inches(3.7), Inches(3.3), "2｜每支格式都不一樣", "封面、標題、口播、內文、\n標籤、懶人包東拼西湊，\n貼 Sheet 更痛。")
-    card(s, Inches(8.7), Inches(2.4), Inches(3.7), Inches(3.3), "3｜換人口吻就飄", "沒有帳號規則沉澱，\n產出來不像你、也不穩定。", SOFT)
+    card(s, Inches(8.7), Inches(2.4), Inches(3.7), Inches(3.3), "3｜下一篇就感覺哪裡都不對", "沒有帳號規則沉澱，\n產出來不像你、也不穩定。", SOFT)
     footer(s, "結果句：需要的是可複製的產稿系統，不是再一個聊天框。", 2)
 
     # 03
     s = prs.slides.add_slide(blank)
     add_rect(s, Inches(0), Inches(0), W, H, WHITE)
     add_textbox(s, Inches(0.7), Inches(0.45), Inches(10), Inches(0.35), "產品是什麼", size=14, bold=True, color=GREEN_D)
-    add_textbox(s, Inches(0.7), Inches(0.85), Inches(12), Inches(1.1), "把「參考稿／題材」變成可上架口播包", size=32, bold=True, color=NAVY)
+    add_textbox(s, Inches(0.7), Inches(0.85), Inches(12), Inches(1.1), "把「參考稿／題材／影片」變成可上架口播包", size=28, bold=True, color=NAVY)
     card(
         s,
         Inches(0.7),
@@ -130,7 +130,7 @@ def build():
         Inches(5.8),
         Inches(3.5),
         "輸入 → 輸出",
-        "輸入：新聞／舊口播（改爆款）或一句題材（展開）\n\n輸出六欄：\n封面文案｜影片標題｜口播稿\n內文｜hashtag｜懶人包整理",
+        "輸入：新聞／舊口播（改爆款）或一句題材（展開）\n也可：影片網址 → 轉錄文字 → 貼回產稿\n\n輸出六欄：\n封面文案｜影片標題｜口播稿\n內文｜hashtag｜懶人包整理",
         SOFT,
     )
     card(
@@ -140,7 +140,7 @@ def build():
         Inches(5.6),
         Inches(3.5),
         "工作台規格",
-        "約 30–45 秒｜口播 150 字基準\n一次一個角度\n繁中台灣白話｜禁陸網用語\n一鍵複製可贴 Google Sheet",
+        "約 30–45 秒｜口播 150 字基準\n一次一個角度\n一鍵複製可贴 Google Sheet\n轉錄機器人餵文字進來",
         NAVY,
         title_color=WHITE,
         body_color=RGBColor(0xC9, 0xE6, 0xD4),
@@ -159,7 +159,7 @@ def build():
         Inches(5.5),
         Inches(3.4),
         "貼稿改爆款",
-        "貼新聞／參考口播／舊稿\n• 萃取題材後整篇重寫\n• 不是逐句微調\n• 適合：已有素材要升級",
+        "貼新聞／參考口播／舊稿／轉錄文字\n• 萃取題材後整篇重寫\n• 不是逐句微調\n• 適合：已有素材要升級",
         SOFT,
     )
     card(
@@ -187,7 +187,7 @@ def build():
     s = prs.slides.add_slide(blank)
     add_rect(s, Inches(0), Inches(0), W, H, WHITE)
     add_textbox(s, Inches(0.7), Inches(0.45), Inches(10), Inches(0.35), "自定義規則", size=14, bold=True, color=GREEN_D)
-    add_textbox(s, Inches(0.7), Inches(0.85), Inches(12), Inches(1.1), "空白跟系統預設　有填才改那一塊", size=30, bold=True, color=NAVY)
+    add_textbox(s, Inches(0.7), Inches(0.85), Inches(12), Inches(1.1), "系統預設與客製化　留白沿用｜有填才改那一塊", size=28, bold=True, color=NAVY)
     card(
         s,
         Inches(0.7),
@@ -195,7 +195,7 @@ def build():
         Inches(5.8),
         Inches(3.4),
         "可調區塊",
-        "身份｜語氣\n必要 hashtag 跟 CTA\n要／不要｜標準文案範例\n禁止使用的題材\n自訂指令（進階，可啟用）",
+        "身份｜語氣\n必要 hashtag 跟 CTA\n要／不要｜口播文案參考區\n禁止使用的題材\n自訂指令（進階，可啟用）",
         SOFT,
     )
     card(
@@ -209,15 +209,16 @@ def build():
     )
     footer(s, "結果句：開箱通用，用久了變成你家帳號專屬產稿機。", 6)
 
-    # 07
+    # 07 上手＋轉錄合併
     s = prs.slides.add_slide(blank)
     add_rect(s, Inches(0), Inches(0), W, H, WHITE)
-    add_textbox(s, Inches(0.7), Inches(0.45), Inches(10), Inches(0.35), "上手只要三步", size=14, bold=True, color=GREEN_D)
-    add_textbox(s, Inches(0.7), Inches(0.85), Inches(12), Inches(0.9), "今天就能開始產", size=34, bold=True, color=NAVY)
-    card(s, Inches(0.7), Inches(2.2), Inches(3.7), Inches(3.3), "1｜打開專屬網址", "登入後進入產稿工作台\n不用安裝、不用設環境", SOFT)
-    card(s, Inches(4.7), Inches(2.2), Inches(3.7), Inches(3.3), "2｜自定義規則（可選）", "有要對齊再填\n沒有就全留白")
-    card(s, Inches(8.7), Inches(2.2), Inches(3.7), Inches(3.3), "3｜貼稿或丟題材", "選角度 → 開始產稿\n分欄複製或貼 Sheet", SOFT)
-    footer(s, "結果句：未來你只會拿到一串網址——進去就能完成整套產稿。", 7)
+    add_textbox(s, Inches(0.7), Inches(0.45), Inches(10), Inches(0.35), "上手一條龍", size=14, bold=True, color=GREEN_D)
+    add_textbox(s, Inches(0.7), Inches(0.85), Inches(12), Inches(0.9), "打開網址就能產　有影片就先轉錄", size=30, bold=True, color=NAVY)
+    card(s, Inches(0.55), Inches(2.2), Inches(2.9), Inches(3.3), "1｜打開產稿網址", "進入工作台\n不用安裝", SOFT)
+    card(s, Inches(3.65), Inches(2.2), Inches(2.9), Inches(3.3), "2｜規則（可選）", "有要對齊再填\n沒有就全留白")
+    card(s, Inches(6.75), Inches(2.2), Inches(2.9), Inches(3.3), "3｜影片丟轉錄（可選）", "網址進轉錄機器人\n複製文字", SOFT)
+    card(s, Inches(9.85), Inches(2.2), Inches(2.9), Inches(3.3), "4｜貼上就產六欄", "貼稿／轉錄／題材\n選角度 → 貼 Sheet", NAVY, title_color=WHITE, body_color=RGBColor(0xC9, 0xE6, 0xD4))
+    footer(s, "結果句：丟網址、貼文字、出稿——打開就能用。", 7)
 
     # 08
     s = prs.slides.add_slide(blank)
@@ -225,8 +226,8 @@ def build():
     add_textbox(s, Inches(0.7), Inches(0.45), Inches(10), Inches(0.35), "下一步", size=14, bold=True, color=GREEN_D)
     add_textbox(s, Inches(0.7), Inches(0.85), Inches(12), Inches(1.1), "把產稿變成每天可交付的產線", size=30, bold=True, color=NAVY)
     card(s, Inches(0.55), Inches(2.3), Inches(2.9), Inches(3.1), "一打開就有", "雙模式產稿\n六欄輸出\n自定義規則\n禁題預警", SOFT)
-    card(s, Inches(3.65), Inches(2.3), Inches(2.9), Inches(3.1), "可擴", "多帳號切換\n產稿歷史\n規則雲端同步")
-    card(s, Inches(6.75), Inches(2.3), Inches(2.9), Inches(3.1), "可擴", "團隊權限\n用量控管\n品牌版型", SOFT)
+    card(s, Inches(3.65), Inches(2.3), Inches(2.9), Inches(3.1), "含轉錄", "影片網址→文字\n再餵進產稿")
+    card(s, Inches(6.75), Inches(2.3), Inches(2.9), Inches(3.1), "可擴", "多帳號／歷史\n規則雲端同步", SOFT)
     card(s, Inches(9.85), Inches(2.3), Inches(2.9), Inches(3.1), "核心不變", "結構保底\n題材判斷\n留言導向", NAVY, title_color=WHITE, body_color=RGBColor(0xC9, 0xE6, 0xD4))
     footer(s, "自動產稿機器人｜Short Script OS — 打開網址，就產。", 8)
 

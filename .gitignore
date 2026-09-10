@@ -1,4 +1,6 @@
 web/node_modules
+docs/node_modules
+docs/package-lock.json
 web/dist
 web/.env
 web/.env.local
