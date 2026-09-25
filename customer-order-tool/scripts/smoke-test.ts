@@ -1,10 +1,10 @@
 import { readFileSync } from 'node:fs'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { EXPORT_HEADERS } from '../server/columns.js'
+import { EXPORT_HEADERS, mapOrderColumns } from '../server/columns.js'
 import { parseCsv, toExportCsv } from '../server/csv.js'
 import { matchOrdersToCustomers, toExportRows } from '../server/match.js'
-import { normalizeName } from '../server/normalize.js'
+import { normalizeName, normalizeOrderDate } from '../server/normalize.js'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const fixtures = join(__dirname, '..', 'fixtures')
@@ -20,6 +20,14 @@ function section(title: string) {
 section('normalizeName')
 assert(normalizeName('  王　小明  ') === '王小明', '全形空白與前後空白應移除')
 assert(normalizeName('ＡＢＣ商店') === 'ABC商店', '全形英數轉半形')
+
+section('normalizeOrderDate')
+assert(
+  normalizeOrderDate('2026-09-22/202638') === '2026-09-22',
+  'LuckyCat 日期應只取 / 前',
+)
+assert(normalizeOrderDate('2026-09-22') === '2026-09-22', '純日期不變')
+assert(normalizeOrderDate('') === '', '空日期')
 
 section('fixture match')
 const customersText = readFileSync(
@@ -91,6 +99,63 @@ assert(aliasResult.summary.matchedCount === 1, '別名訂單應對中 1 筆')
 assert(aliasResult.matched[0]?.customerId === 'U30001', '李大同 ID')
 assert(aliasResult.matched[0]?.type === '加購訂單', '保留訂單類型')
 assert(aliasResult.matched[0]?.count === '3', '件數別名')
+
+section('LuckyCat columns: 收件姓名 > 訂購人')
+const luckycatText = readFileSync(
+  join(fixtures, 'orders-luckycat.csv'),
+  'utf8',
+)
+const luckycatOrders = parseCsv(luckycatText)
+const luckycatCols = mapOrderColumns(luckycatOrders.headers)
+assert(
+  luckycatCols.name === '收件姓名',
+  `姓名應對到收件姓名，實際 ${luckycatCols.name}`,
+)
+assert(
+  luckycatCols.mobile === '收件電話',
+  `電話應對到收件電話，實際 ${luckycatCols.mobile}`,
+)
+assert(
+  luckycatCols.price === '訂單金額',
+  `價格應對到訂單金額，實際 ${luckycatCols.price}`,
+)
+assert(
+  luckycatCols.orderDate === '訂購日期',
+  `日期應對到訂購日期，實際 ${luckycatCols.orderDate}`,
+)
+
+const luckycatResult = matchOrdersToCustomers(
+  customers.rows,
+  customers.headers,
+  luckycatOrders.rows,
+  luckycatOrders.headers,
+)
+assert(
+  luckycatResult.summary.matchedCount === 3,
+  `LuckyCat 應對中 3 筆，實際 ${luckycatResult.summary.matchedCount}`,
+)
+
+const lc1 = luckycatResult.matched.find((r) => r.orderNo === 'LC-001')
+assert(lc1, '應有 LC-001')
+assert(lc1.orderName === '鍾欣安', '應使用收件姓名而非訂購人（逸安國際商行）')
+assert(lc1.customerId === 'U60001', '鍾欣安 customerId')
+assert(lc1.mobile === '0912345678', '收件電話')
+assert(lc1.price === '1500', '訂單金額')
+assert(lc1.orderDate === '2026-09-22', '訂購日期應正規化去掉 / 後段')
+
+const lc2 = luckycatResult.matched.find((r) => r.orderNo === 'LC-002')
+assert(lc2?.orderName === '李大同', 'LC-002 收件姓名')
+assert(lc2?.customerId === 'U30001', '李大同 ID')
+assert(lc2?.orderDate === '2026-09-23', 'LC-002 日期正規化')
+
+assert(
+  !luckycatResult.matched.some((r) => r.orderName === '逸安國際商行'),
+  '匯出不可出現訂購人（店家名）',
+)
+assert(
+  !luckycatResult.unmatched.some((r) => r.orderName === '逸安國際商行'),
+  '對不到亦不可用訂購人當姓名',
+)
 
 section('large customers sample (optional)')
 const largePathCandidates = [

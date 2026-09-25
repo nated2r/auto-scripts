@@ -4,7 +4,11 @@ import {
   type ExportRow,
 } from './columns.js'
 import { cell, type CsvRow } from './csv.js'
-import { normalizeName, normalizePhone } from './normalize.js'
+import {
+  normalizeName,
+  normalizeOrderDate,
+  normalizePhone,
+} from './normalize.js'
 
 export type CustomerCandidate = {
   userId: string
@@ -75,7 +79,7 @@ export function matchOrdersToCustomers(
   }
   if (!orderColumns.name) {
     throw new Error(
-      '訂單缺少必要欄位：需要姓名欄（姓名／客戶姓名／name 等）',
+      '訂單缺少必要欄位：需要姓名欄（收件姓名／收件人／客戶姓名／姓名／訂購人 等）',
     )
   }
 
@@ -104,7 +108,9 @@ export function matchOrdersToCustomers(
     const key = normalizeName(orderName)
     const orderMobileRaw = getField(row, orderColumns, 'mobile')
     const orderMobile = normalizePhone(orderMobileRaw)
-    const orderDate = getField(row, orderColumns, 'orderDate')
+    const orderDate = normalizeOrderDate(
+      getField(row, orderColumns, 'orderDate'),
+    )
     const orderNo = getField(row, orderColumns, 'orderNo')
     const note = getField(row, orderColumns, 'note')
     const price = getField(row, orderColumns, 'price')

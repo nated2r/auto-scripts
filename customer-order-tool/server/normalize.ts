@@ -13,3 +13,15 @@ export function normalizePhone(raw: string): string {
   s = s.replace(/[\s\-()（）]/g, '')
   return s.trim()
 }
+
+/**
+ * 訂單日期正規化：LuckyCat 等平台常為 `2026-09-22/202638`，
+ * 匯出只保留 `/` 前的日期部分。
+ */
+export function normalizeOrderDate(raw: string): string {
+  if (!raw) return ''
+  const s = String(raw).normalize('NFKC').trim()
+  const slash = s.indexOf('/')
+  if (slash >= 0) return s.slice(0, slash).trim()
+  return s
+}

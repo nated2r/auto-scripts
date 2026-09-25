@@ -12,20 +12,26 @@ export type OrderField =
 
 export type CustomerField = 'displayName' | 'mobile' | 'userId' | 'city'
 
+/**
+ * 各欄別名依優先順序排列：先出現的別名優先於 CSV 欄位順序。
+ * 姓名：收件人資訊 > 一般姓名欄 > 訂購人（常為店家／帳號名）
+ */
 const ORDER_ALIASES: Record<OrderField, string[]> = {
   name: [
+    '收件姓名',
+    '收件人',
+    '顧客姓名',
+    '客戶姓名',
     '姓名',
     '名字',
-    '客戶姓名',
-    '顧客姓名',
-    '訂購人',
-    '收件人',
     'name',
     'customername',
     'customer_name',
     '客戶名稱',
+    '訂購人',
   ],
   mobile: [
+    '收件電話',
     '電話',
     '手機',
     '電話/手機',
@@ -46,7 +52,15 @@ const ORDER_ALIASES: Record<OrderField, string[]> = {
   ],
   type: ['類型', '訂單類型', 'type', 'ordertype', 'order_type'],
   count: ['數量', 'count', 'qty', 'quantity', '件數'],
-  price: ['價格', '金額', '單價', '售價', 'price', 'amount'],
+  price: [
+    '訂單金額',
+    '價格',
+    '金額',
+    '單價',
+    '售價',
+    'price',
+    'amount',
+  ],
   note: ['備註', 'note', 'remark', 'memo', '說明'],
   orderNo: [
     '訂單編號',
@@ -91,14 +105,21 @@ function normalizeHeader(h: string): string {
     .toLowerCase()
 }
 
+/**
+ * 依別名陣列優先順序找表頭（別名順序勝於 CSV 欄位順序）。
+ */
 function findAlias(
   headers: string[],
   aliases: string[],
 ): string | undefined {
-  const normalizedAliases = aliases.map(normalizeHeader)
+  const byNorm = new Map<string, string>()
   for (const header of headers) {
     const nh = normalizeHeader(header)
-    if (normalizedAliases.includes(nh)) return header
+    if (nh && !byNorm.has(nh)) byNorm.set(nh, header)
+  }
+  for (const alias of aliases) {
+    const hit = byNorm.get(normalizeHeader(alias))
+    if (hit) return hit
   }
   return undefined
 }
