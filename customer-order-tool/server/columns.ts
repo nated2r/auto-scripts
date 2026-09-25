@@ -10,7 +10,7 @@ export type OrderField =
   | 'note'
   | 'orderNo'
 
-export type CustomerField = 'displayName' | 'mobile' | 'userId' | 'city'
+export type CustomerField = 'displayName' | 'mobile' | 'platformId' | 'city'
 
 const ORDER_ALIASES: Record<OrderField, string[]> = {
   // 優先收件人姓名；不含「訂購人」（Luckycat 常為公司／帳號名）
@@ -76,15 +76,13 @@ const ORDER_ALIASES: Record<OrderField, string[]> = {
 const CUSTOMER_ALIASES: Record<CustomerField, string[]> = {
   displayName: ['顯示名稱', 'displayname', 'display_name', '名稱', '姓名'],
   mobile: ['電話/手機', '電話', '手機', 'mobile', 'phone'],
-  userId: [
-    'agentone 用戶 id',
-    'agentone用戶id',
-    '用戶 id',
-    '用戶id',
-    'userid',
-    'user_id',
-    'customerid',
-    'customer_id',
+  // 匯出 customerId 只用平台 ID；勿綁 AgentONE 用戶 ID／泛用「用戶 id」
+  platformId: [
+    '平台 id',
+    '平台id',
+    'platform id',
+    'platform_id',
+    'platformid',
   ],
   city: [
     '位置（現居城市）',
@@ -103,14 +101,16 @@ function normalizeHeader(h: string): string {
     .toLowerCase()
 }
 
+/** 依別名陣列優先順序找表頭（前面的別名優先，避免誤綁較弱欄位） */
 function findAlias(
   headers: string[],
   aliases: string[],
 ): string | undefined {
-  const normalizedAliases = aliases.map(normalizeHeader)
-  for (const header of headers) {
-    const nh = normalizeHeader(header)
-    if (normalizedAliases.includes(nh)) return header
+  for (const alias of aliases) {
+    const na = normalizeHeader(alias)
+    for (const header of headers) {
+      if (normalizeHeader(header) === na) return header
+    }
   }
   return undefined
 }

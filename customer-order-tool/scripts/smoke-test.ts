@@ -1,7 +1,7 @@
 import { readFileSync } from 'node:fs'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { EXPORT_HEADERS, mapOrderColumns } from '../server/columns.js'
+import { EXPORT_HEADERS, mapCustomerColumns, mapOrderColumns } from '../server/columns.js'
 import { parseCsv, toExportCsv } from '../server/csv.js'
 import { matchOrdersToCustomers, toExportRows } from '../server/match.js'
 import { normalizeName, normalizeOrderDate } from '../server/normalize.js'
@@ -45,6 +45,14 @@ const result = matchOrdersToCustomers(
 )
 
 console.log('summary', result.summary)
+assert(
+  result.summary.customerColumns.platformId === '平台 ID',
+  `應綁到「平台 ID」，實際 ${result.summary.customerColumns.platformId}`,
+)
+assert(
+  !Object.values(result.summary.customerColumns).includes('AgentONE 用戶 ID'),
+  'customerColumns 不可綁到 AgentONE 用戶 ID',
+)
 assert(result.summary.matchedCount === 3, `可匯出應為 3，實際 ${result.summary.matchedCount}`)
 assert(result.summary.ambiguousCount === 1, `同名應為 1，實際 ${result.summary.ambiguousCount}`)
 assert(result.summary.unmatchedCount === 2, `對不到應為 2，實際 ${result.summary.unmatchedCount}`)
@@ -54,21 +62,29 @@ assert(
   exportRows.every((r) => Object.keys(r).length === EXPORT_HEADERS.length),
   '匯出列應只有範本欄位',
 )
+assert(
+  exportRows.every((r) => r.customerId.startsWith('U')),
+  '唯一對中匯出的 customerId 應為 U 開頭平台 ID',
+)
+assert(
+  !exportRows.some((r) => r.customerId.startsWith('A')),
+  '不可誤用 AgentONE 用戶 ID（fixture 以 A 開頭）',
+)
 
 const mei = exportRows.find((r) => r.orderNo === 'ORD-003')
 assert(mei, '應有 ORD-003')
-assert(mei.customerId === 'U20001', 'ORD-003 customerId')
+assert(mei.customerId === 'U20001', 'ORD-003 customerId 應為平台 ID')
 assert(mei.mobile === '0912000000', '訂單電話優先於顧客電話')
 assert(mei.count === '2', '數量來自訂單')
 assert(mei.type === '一般訂單', 'type 預設一般訂單')
 
 const abc = exportRows.find((r) => r.orderNo === 'ORD-004')
-assert(abc?.customerId === 'U40001', '全形名稱應對到顧客')
+assert(abc?.customerId === 'U40001', '全形名稱應對到顧客平台 ID')
 assert(abc?.count === '1', '數量空則預設 1')
 assert(abc?.mobile === '0933333333', '訂單電話空則用顧客電話')
 
 const li = exportRows.find((r) => r.orderNo === 'ORD-007')
-assert(li?.customerId === 'U30001', '李大同應對中')
+assert(li?.customerId === 'U30001', '李大同應對中（平台 ID）')
 assert(li?.mobile === '0922222222', '用顧客電話')
 
 assert(
@@ -80,11 +96,33 @@ assert(
   '對不到 ORD-005 不可進匯出',
 )
 assert(result.ambiguous[0]?.candidates.length === 2, '同名應有兩位候選')
+assert(
+  result.ambiguous[0]?.candidates.every((c) => c.platformId.startsWith('U')),
+  '同名候選應顯示平台 ID',
+)
 
 const csvOut = toExportCsv(exportRows)
 assert(csvOut.startsWith('\uFEFF'), '匯出應含 UTF-8 BOM')
 assert(csvOut.includes('customerId,mobile,orderDate,type,count,price,note,orderNo'), '表頭')
 assert(!csvOut.includes('orderName'), '匯出不可含內部欄位')
+
+section('platform id aliases / not AgentONE')
+const onlyPlatformHeaders = [
+  '顯示名稱',
+  'AgentONE 用戶 ID',
+  '平台ID',
+  '電話/手機',
+]
+const mappedPlatform = mapCustomerColumns(onlyPlatformHeaders)
+assert(
+  mappedPlatform.platformId === '平台ID',
+  '應優先／綁到平台ID，而非 AgentONE',
+)
+const agentOnly = mapCustomerColumns(['顯示名稱', 'AgentONE 用戶 ID', '用戶 id'])
+assert(
+  !agentOnly.platformId,
+  '僅有 AgentONE／用戶 id 時不可當成 platformId',
+)
 
 section('alias columns')
 const aliasText = readFileSync(join(fixtures, 'orders-alias-alt.csv'), 'utf8')
