@@ -11,7 +11,8 @@ import {
 } from './normalize.js'
 
 export type CustomerCandidate = {
-  userId: string
+  /** 平台 ID（匯出 customerId）；非 AgentONE 用戶 ID */
+  platformId: string
   displayName: string
   mobile: string
   city: string
@@ -72,9 +73,9 @@ export function matchOrdersToCustomers(
   const customerColumns = mapCustomerColumns(customerHeaders)
   const orderColumns = mapOrderColumns(orderHeaders)
 
-  if (!customerColumns.displayName || !customerColumns.userId) {
+  if (!customerColumns.displayName || !customerColumns.platformId) {
     throw new Error(
-      '顧客名單缺少必要欄位：需要「顯示名稱」與「AgentONE 用戶 ID」（或等價別名）',
+      '顧客名單缺少必要欄位：需要「顯示名稱」與「平台 ID」（或等價別名：平台ID／platform id）',
     )
   }
   if (!orderColumns.name) {
@@ -89,7 +90,7 @@ export function matchOrdersToCustomers(
     const key = normalizeName(displayName)
     if (!key) continue
     const candidate: CustomerCandidate = {
-      userId: getField(row, customerColumns, 'userId'),
+      platformId: getField(row, customerColumns, 'platformId'),
       displayName,
       mobile: normalizePhone(getField(row, customerColumns, 'mobile')),
       city: getField(row, customerColumns, 'city'),
@@ -134,7 +135,7 @@ export function matchOrdersToCustomers(
     if (candidates.length === 1) {
       const c = candidates[0]!
       matched.push({
-        customerId: c.userId,
+        customerId: c.platformId,
         mobile: orderMobile || c.mobile,
         orderDate,
         type: typeRaw || '一般訂單',

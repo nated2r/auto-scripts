@@ -2,7 +2,7 @@ import { useState } from 'react'
 import './App.css'
 
 type CustomerCandidate = {
-  userId: string
+  platformId: string
   displayName: string
   mobile: string
   city: string
@@ -97,7 +97,7 @@ export default function App() {
       <header className="hero">
         <h1>顧客訂單對應工具</h1>
         <p>
-          上傳 AgentONE 顧客名單與訂單 CSV，依姓名對到顧客 ID 後匯出範本格式。
+          上傳 AgentONE 顧客名單與訂單 CSV，依姓名對到顧客後，以平台 ID 匯出範本格式。
           同名與對不到只顯示在畫面，不進下載檔。
         </p>
       </header>
@@ -106,7 +106,7 @@ export default function App() {
         <section className="slot">
           <h2>顧客名單</h2>
           <p className="hint">
-            AgentONE 匯出：需含「顯示名稱」「AgentONE 用戶 ID」；建議含電話、城市
+            AgentONE 匯出：需含「顯示名稱」「平台 ID」；建議含電話、城市（不用 AgentONE 用戶 ID）
           </p>
           <input
             type="file"
@@ -214,7 +214,7 @@ export default function App() {
                           <ul className="candidates">
                             {row.candidates.map((c, j) => (
                               <li key={`c-${i}-${j}`}>
-                                {c.displayName}｜{c.userId}｜{c.mobile}｜
+                                {c.displayName}｜{c.platformId}｜{c.mobile}｜
                                 {c.city || '—'}
                               </li>
                             ))}
