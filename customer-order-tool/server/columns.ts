@@ -13,19 +13,22 @@ export type OrderField =
 export type CustomerField = 'displayName' | 'mobile' | 'userId' | 'city'
 
 const ORDER_ALIASES: Record<OrderField, string[]> = {
+  // 優先收件人姓名；不含「訂購人」（Luckycat 常為公司／帳號名）
   name: [
+    '收件姓名',
+    '收件人姓名',
+    '收件人',
     '姓名',
     '名字',
     '客戶姓名',
     '顧客姓名',
-    '訂購人',
-    '收件人',
     'name',
     'customername',
     'customer_name',
     '客戶名稱',
   ],
   mobile: [
+    '收件電話',
     '電話',
     '手機',
     '電話/手機',
@@ -46,7 +49,16 @@ const ORDER_ALIASES: Record<OrderField, string[]> = {
   ],
   type: ['類型', '訂單類型', 'type', 'ordertype', 'order_type'],
   count: ['數量', 'count', 'qty', 'quantity', '件數'],
-  price: ['價格', '金額', '單價', '售價', 'price', 'amount'],
+  price: [
+    '訂單金額',
+    '價格',
+    '金額',
+    '單價',
+    '售價',
+    'price',
+    'amount',
+  ],
+  // note ← 備註 only（不自動併入訂購商品）
   note: ['備註', 'note', 'remark', 'memo', '說明'],
   orderNo: [
     '訂單編號',
