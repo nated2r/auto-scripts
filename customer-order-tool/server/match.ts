@@ -4,7 +4,11 @@ import {
   type ExportRow,
 } from './columns.js'
 import { cell, type CsvRow } from './csv.js'
-import { normalizeName, normalizePhone } from './normalize.js'
+import {
+  normalizeName,
+  normalizeOrderDate,
+  normalizePhone,
+} from './normalize.js'
 
 export type CustomerCandidate = {
   userId: string
@@ -104,7 +108,9 @@ export function matchOrdersToCustomers(
     const key = normalizeName(orderName)
     const orderMobileRaw = getField(row, orderColumns, 'mobile')
     const orderMobile = normalizePhone(orderMobileRaw)
-    const orderDate = getField(row, orderColumns, 'orderDate')
+    const orderDate = normalizeOrderDate(
+      getField(row, orderColumns, 'orderDate'),
+    )
     const orderNo = getField(row, orderColumns, 'orderNo')
     const note = getField(row, orderColumns, 'note')
     const price = getField(row, orderColumns, 'price')
